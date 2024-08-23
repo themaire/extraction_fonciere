@@ -35,6 +35,12 @@ DBHOST = os.getenv('DBHOST')
 DBUSER = os.getenv('DBUSER')
 DBPASSWD = os.getenv('DBPASSWD')
 
+DBUSER_HISTO = os.getenv('DBUSER_HISTO')
+DBHOST_HISTO = os.getenv('DBHOST_HISTO')
+DBPASSWD_HISTO = os.getenv('DBPASSWD_HISTO')
+BDD_HISTO = os.getenv('BDD_HISTO')
+TABLE_HISTO = os.getenv('TABLE_HISTO')
+
 prog_pgsql2shp = os.getenv('prog_pgsql2shp')
 
 INPUT_DIR = os.path.join(BASE_DIR, "a_traiter")
@@ -281,7 +287,7 @@ def xls2list(excel_filename):
 
     for i in data:
         if(i == 0):
-            continue
+            pass
 
         subList = []
         for j in range(COLUMS):
@@ -387,7 +393,13 @@ def main(writeFiles = True, writeHisto = False):
         # Création du dossier de destination
         date_infos = str(str( date.today() ) + "_" + extraction_infos)
 
-        print('RESULT_DIR', RESULT_DIR)
+        try:
+            os.makedirs(RESULT_DIR)
+            print("Dossier", RESULT_DIR, "créé.")
+            print()
+        except FileExistsError:
+            print('RESULT_DIR', RESULT_DIR)
+            pass
         print( 'directory_path = os.path.join(RESULT_DIR, date_infos)' )
         print("date_infos :", date_infos)
         directory_path = os.path.join(RESULT_DIR, date_infos)
@@ -461,15 +473,15 @@ def main(writeFiles = True, writeHisto = False):
             # print("i :", i)
             inserts += "('" + str(i)[2:][:-3] + "', '" + extraction['description'] + "', '" + extraction['initiales'] + "', '" + str(extraction['dep']) + "'), "
         inserts_histo = inserts[:-2]
-        histoQuery = "INSERT INTO irenee.histo_foncier(hfo_code_parcelle, hfo_info_extraction, hfo_demandeur, hfo_dep) VALUES {};".format(inserts_histo)
+        histoQuery = "INSERT INTO " + TABLE_HISTO + "(hfo_code_parcelle, hfo_info_extraction, hfo_demandeur, hfo_dep) VALUES {};".format(inserts_histo)
         print(histoQuery)
         print()
 
-        connection_lizmap = db_connect("qgisdb2.lizmap.com", "admincenca@cen_champagne_ardenne", "PVBf3Obdj7xXNda0tiO", "lizmap_cenca_maps")
-        connection_lizmap.autocommit = True
-        lizmap_result = db_query(connection_lizmap, histoQuery, type = 'insert')
+        connection_histo = db_connect(DBHOST_HISTO, DBUSER_HISTO, DBPASSWD_HISTO, BDD_HISTO)
+        connection_histo.autocommit = True
+        lizmap_result = db_query(connection_histo, histoQuery, type = 'insert')
         print(lizmap_result)
-        connection_lizmap.close()
+        connection_histo.close()
     else:
         print("NE PAS écrire dans la table d'historique.")
         print()
