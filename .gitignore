@@ -1,0 +1,12 @@
+__pycache__
+.env
+env_foncier
+
+fichiers_de_base_alban
+anciennes_methodes
+
+requete_par_fichier_excel.txt
+requete_par_nom.txt
+
+*workspace
+.vscode/
