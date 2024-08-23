@@ -1,6 +1,6 @@
 # Script Python d'extraction foncier
 
-Ceci est un script utilitaire qui me sert dans le cadre de mon travail. Il prends en entrée un fichier Excel completé par des collegues dans le but de faire une demande d'extraction de données. Le script va donc lire ce fichier Excel et faire des requetes à une base de données pour produire un fichier .shape (couche spatiale de polygone) et un fichier Excel de sortie correspondant à la demande en entrée.
+Ceci est un script utilitaire qui me sert dans le cadre de mon travail. Il prend en entrée un fichier Excel completé par des collegues dans le but de faire une demande d'extraction de données. Le script va donc lire ce fichier Excel et faire des requetes à une base de données pour produire un fichier .shape (couche spatiale de polygone) et un fichier Excel de sortie correspondant à la demande en entrée.
 
 Un environement virtuel Python est mise en oeuvre pour l'installation des 3 modules utilisés.
 
