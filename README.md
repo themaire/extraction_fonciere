@@ -1,6 +1,6 @@
 # Script Python d'extraction foncier
 
-Ceci est un script utilitaire qui me sert dans le cadre de mon travail. Il prends en entrée un fichier Excel completé par des collegues dans le but de faire une demande d'extraction de données. Le script va donc lire ce fichier Excel et faire des requetes à une base de données pour produire un fichier .shape (couche spatiale de polygone) et un fichier Excel de sortie correspondant à la demande en entrée.
+Ceci est un script utilitaire qui me sert dans le cadre de mon travail. Il prend en entrée un fichier Excel completé par des collegues dans le but de faire une demande d'extraction de données. Le script va donc lire ce fichier Excel et faire des requetes à une base de données pour produire un fichier .shape (couche spatiale de polygone) et un fichier Excel de sortie correspondant à la demande en entrée.
 
 Un environement virtuel Python est mise en oeuvre pour l'installation des 3 modules utilisés.
 
@@ -17,39 +17,43 @@ Les réglages se trouve dans le fichier .env à obtenir depuis le fichier d'exem
 Appuyez sur la touche Windows et tapez "PowerShell".
 (Faites un clic droit sur "Windows PowerShell" et sélectionnez "Exécuter en tant qu'administrateur".)
 Exécuter la commande suivante et dire oui (O) :
+```powershell
 Set-ExecutionPolicy RemoteSigned
+```
 
-## 2 Créer un environnement virtuel. 
+## 3 Créer un environnement virtuel. 
 Il s'agit de preferer installer des dépendances logiciel appellés "modules Pytthon" dans ce qu'on appel un venv. Pour faire simple, cela conciste à ne pas "salir" son Python. Les modules seront installé que dans le dossier du projet et non de manière générale accessible depuis n'importe où dans l'ordinateur.
+```powershell
 python -m venv env_foncier
+```
 
-## 3 Rentrer/activer l'environnement virtuel "env_foncier" (bien etre placé dans le dossier de ce projet):
+## 4 Rentrer/activer l'environnement virtuel "env_foncier" (bien etre placé dans le dossier de ce projet):
 ```powershell
 env_foncier\Scripts\activate
 ```
 
-## 4 Mettre à jour pip (gestionnaire d'installation de modules Python automatisé) :
+## 5 Mettre à jour pip (gestionnaire d'installation de modules Python automatisé) :
 ```powershell
 python -m pip install --upgrade pip
 ```
 
-## 5 Installer les dépendences :
+## 6 Installer les dépendences :
 python -m pip install -r requirements.txt
 (Ceci va installer les modules pour lire et écrire des fichiers Excel, exploiter une base de données Postgresql et utiliser les variables d'environnement : la prochaine étape.)
 
-## 6 Sortez de l'environnement virtuel, nous en avons plus besoin avec cette commande :
+## 7 Sortez de l'environnement virtuel, nous en avons plus besoin avec cette commande :
 ```powershell
 deactivate
 ```
 
-## 7 Dupliquer le fichier .env_exemple en .env avec cette commande :
+## 8 Dupliquer le fichier .env_exemple en .env avec cette commande :
 ```powershell
 cp .env_exemple .env
 ```
 
-## 8 Editez ce fichier .env pour correspondre a votre configuration personnelle.
+## 9 Editez ce fichier .env pour correspondre a votre configuration personnelle.
 
-## 9 Executer le script, l'idée est la suivante :
+## 10 Executer le script, l'idée est la suivante :
 
 Usage :
 
