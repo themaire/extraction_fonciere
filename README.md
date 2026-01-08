@@ -44,7 +44,9 @@ python -m pip install --upgrade pip
 
 ## 6 Installer les dépendences
 
+```powershell
 python -m pip install -r requirements.txt
+```
 (Ceci va installer les modules pour lire et écrire des fichiers Excel, exploiter une base de données Postgresql et utiliser les variables d'environnement : la prochaine étape.)
 
 ## 7 Sortez de l'environnement virtuel, nous en avons plus besoin avec cette commande
@@ -65,7 +67,7 @@ cp .env_exemple .env
 
 Usage :
 
-"Emplacement du lanceur Python de l'énvironnement virtuel" "Emplacement du script Python" "mettre_0_ou_1_pour_ecrire_dans_la_table_d'historique"
+"Emplacement du lanceur Python de l'énvironnement virtuel" "Emplacement du script Python" "Emplacement du fichier excel à traiter" "mettre_0_ou_1_pour_ecrire_dans_la_table_d'historique"
 
 Par exemple, on peut lancer le script de cette manière uniquement en utilisant des chemins absolus :
 
