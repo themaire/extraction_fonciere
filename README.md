@@ -47,6 +47,7 @@ python -m pip install --upgrade pip
 ```powershell
 python -m pip install -r requirements.txt
 ```
+
 (Ceci va installer les modules pour lire et écrire des fichiers Excel, exploiter une base de données Postgresql et utiliser les variables d'environnement : la prochaine étape.)
 
 ## 7 Sortez de l'environnement virtuel, nous en avons plus besoin avec cette commande
