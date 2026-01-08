@@ -19,10 +19,16 @@ from time import sleep
 
 from utils.m_bdd import *
 
+# Pour les exports shapefile
+import geopandas as gpd
+from sqlalchemy import create_engine
+
 pc_type = os.name
 
 # Récupérer le répertoire courant du script
 current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Il s'agit du fichier gabarit excel de SORTIE à remplir par le script
 GABARIT_EXCEL = os.getenv('GABARIT_EXCEL')
 GABARIT_EXCEL = os.path.join(current_dir, GABARIT_EXCEL)
 
@@ -47,7 +53,7 @@ print('INPUT_DIR', INPUT_DIR)
 print('DONE_DIR', DONE_DIR)
 print('RESULT_DIR', RESULT_DIR)
 
-DIRS = {'BASE_DIR' :BASE_DIR,'INPUT_DIR' : INPUT_DIR,'DONE_DIR' : DONE_DIR,'RESULT_DIR' : RESULT_DIR}
+DIRS = {'BASE_DIR' : BASE_DIR, 'INPUT_DIR' : INPUT_DIR, 'DONE_DIR' : DONE_DIR, 'RESULT_DIR' : RESULT_DIR}
 COLUMS = 5
 
 # Test si on a bien mis un fichier en premier paramètre.
@@ -418,10 +424,13 @@ def main(writeFiles = True, writeHisto = False):
             pass
 
         # Export en shape des parcelles
-        subprocess.run(progCommand(directory_path, date_infos, where), shell = True)
+        # subprocess.run(progCommand(directory_path, date_infos, where), shell = True)
+        engine = create_engine(f'postgresql://{DBUSER}:{DBPASSWD}@{DBHOST}/foncier')
+        gdf = gpd.read_postgis(querymakR(where), engine, geom_col='geompar')
+        gdf.to_file(os.path.join(directory_path, date_infos + "_" + extraction_infos + ".shp"), driver='ESRI Shapefile')
 
         # Création du fichier Excel
-        excel_file = os.path.join(directory_path, extraction_infos + ".xlsx")
+        excel_file = os.path.join(directory_path, date_infos + "_" + extraction_infos + ".xlsx")
 
         shutil.copy(GABARIT_EXCEL, excel_file) # On rapatrie le modèle vide dans le nouveau fichier cible à remplir
         sleep(.1)
