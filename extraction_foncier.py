@@ -409,9 +409,9 @@ def main(writeFiles = True, writeHisto = False):
         except FileExistsError:
             print('RESULT_DIR', RESULT_DIR)
             pass
-        print( 'directory_path = os.path.join(RESULT_DIR, date_infos)' )
+        print( 'directory_path = os.path.join(RESULT_DIR, extraction_infos)' )
         print("date_infos :", date_infos)
-        directory_path = os.path.join(RESULT_DIR, date_infos)
+        directory_path = os.path.join(RESULT_DIR, extraction_infos)
         print("directory_path :", directory_path)
 
         try:
@@ -427,10 +427,10 @@ def main(writeFiles = True, writeHisto = False):
         # subprocess.run(progCommand(directory_path, date_infos, where), shell = True)
         engine = create_engine(f'postgresql://{DBUSER}:{DBPASSWD}@{DBHOST}/foncier')
         gdf = gpd.read_postgis(querymakR(where), engine, geom_col='geompar')
-        gdf.to_file(os.path.join(directory_path, date_infos + "_" + extraction_infos + ".shp"), driver='ESRI Shapefile')
+        gdf.to_file(os.path.join(directory_path, date_infos + ".shp"), driver='ESRI Shapefile')
 
         # Création du fichier Excel
-        excel_file = os.path.join(directory_path, date_infos + "_" + extraction_infos + ".xlsx")
+        excel_file = os.path.join(directory_path, date_infos + ".xlsx")
 
         shutil.copy(GABARIT_EXCEL, excel_file) # On rapatrie le modèle vide dans le nouveau fichier cible à remplir
         sleep(.1)
