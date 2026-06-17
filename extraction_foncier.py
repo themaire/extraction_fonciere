@@ -5,6 +5,7 @@
 
 import sys
 import os
+import re
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -278,31 +279,64 @@ def open_excel(filename):
 # fabrique une liste python à partir d'un fichier excel
 def xls2list(excel_filename):
     '''
-    Retourne une simple liste python refletant le contenu du fichier excel.
+    Retourne un tuple (parcellsList, idu_mode).
+    Si la colonne IDU est présente dans l'entête du fichier Excel,
+    le mode IDU est activé : seule cette colonne est lue et les colonnes
+    code INSEE, préfixe, section, numéro sont ignorées.
+    Sinon, les 5 colonnes habituelles sont lues (mode normal).
     '''
     parcellsList = []
-    
+    idu_mode = False
+    idu_col_idx = None
+
     try:
-        data = open_excel(str(excel_filename))
+        xlsx = openpyxl.load_workbook(str(excel_filename))
+        sheet = xlsx.active
+        data = list(sheet.rows)
     except:
         print('Le fichier EXCEL a un souci de lecture-ecriture.')
-        return 1
+        return 1, False
 
-    for i in data:
-        if(i == 0):
-            pass
+    if not data:
+        return parcellsList, idu_mode
 
-        subList = []
-        for j in range(COLUMS):
-            cellvalue = str(i[j].value)
-            
-            # print(cellvalue)
-            
-            subList.append(cellvalue)
-        parcellsList.append(subList)
+    # --- Grande condition : détection du mode IDU ---
+    # Si la première ligne contient une colonne intitulée "IDU",
+    # on lit directement le code parcelle depuis cette colonne
+    # et on ignore toutes les autres colonnes de saisie.
+    header_row = data[0]
+    for idx, cell in enumerate(header_row):
+        if str(cell.value).strip().upper() == 'IDU':
+            idu_mode = True
+            idu_col_idx = idx
+            print(f"Mode IDU détecté (colonne n°{idx + 1}). Les colonnes INSEE / préfixe / section / numéro seront ignorées.")
+            break
+
+    if idu_mode:
+        # Mode IDU : on parcourt les lignes de données (sans l'entête)
+        for i in data[1:]:
+            idu_val = str(i[idu_col_idx].value).strip()
+            if idu_val and idu_val.lower() != 'none':
+                parcellsList.append([idu_val])
+    else:
+        # Mode normal : lecture des 5 colonnes habituelles (entête incluse)
+        for i in data:
+            subList = []
+            for j in range(COLUMS):
+                cellvalue = str(i[j].value)
+                subList.append(cellvalue)
+            parcellsList.append(subList)
 
     print("Il y a", str(len(parcellsList)), 'parcelles dans le fichier.')
-    return parcellsList
+    return parcellsList, idu_mode
+
+def clean_section(section_val):
+    '''
+    Normalise la valeur d'une section cadastrale en retirant les zéros
+    qui précèdent une lettre (ex: '0C' -> 'C', '00AB' -> 'AB').
+    Les sections purement numériques ne sont pas modifiées.
+    '''
+    return re.sub(r'^0+([A-Za-z])', r'\1', str(section_val).strip())
 
 # 2 fonctions pour les requetes
 def wheremakR(list_parcelles):
@@ -322,7 +356,8 @@ def wheremakR(list_parcelles):
         if (cpt > 0):
             where += ", "
         
-        cookedCodeParcelle = "'" + f"{i[1]:0>5}" + f"{i[2]:0>3}" + f"{i[3]:0>2}" + f"{i[4]:0>4}" + "'"
+        section = clean_section(i[3])
+        cookedCodeParcelle = "'" + f"{i[1]:0>5}" + f"{i[2]:0>3}" + f"{section:0>2}" + f"{i[4]:0>4}" + "'"
 
         # where += "(insee = '{}' AND section = '{}' AND numero = '{}')".format(i[1], i[3], i[4])
         #where += "code_parcelle = lpad(" + i[1] + ",5, '0') || lpad(" + i[2] + ", 4, '0') || lpad(" + i[3] + ", 2, '0') || lpad(" + i[4] + ", 4, '0')"
@@ -331,6 +366,15 @@ def wheremakR(list_parcelles):
         cpt += 1
 
     return where + ')'
+
+def wheremakR_idu(list_parcelles):
+    '''
+    Fabrique le WHERE à partir d'une liste de codes IDU lus directement dans le fichier Excel.
+    Chaque élément de list_parcelles est de la forme [idu_string].
+    '''
+    where = "WHERE code_parcelle in ("
+    codes = ", ".join("'" + i[0] + "'" for i in list_parcelles)
+    return where + codes + ')'
 
 def querymakR(where):
     '''
@@ -385,12 +429,17 @@ def main(writeFiles = True, writeHisto = False):
     print("extraction_infos :", extraction_infos)
 
     # Lire le fichier Excel passé en paramètre et le transformer en liste python
-    listParcells = xls2list(current_file)
+    listParcells, idu_mode = xls2list(current_file)
     print()
     print("4 premieres listparcelles ", listParcells[:4], " ... ...")
 
     # Tres important pour les 3 requetes qui vont suivre
-    where = wheremakR(listParcells)
+    # Si le mode IDU est actif, on utilise directement les codes IDU du fichier Excel
+    # sinon on reconstruit le code parcelle depuis les colonnes INSEE / préfixe / section / numéro
+    if idu_mode:
+        where = wheremakR_idu(listParcells)
+    else:
+        where = wheremakR(listParcells)
     print()
     #print("---> where ", where)
 
